@@ -14,6 +14,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -77,6 +80,7 @@ class MainActivity : ComponentActivity() {
                 ColorBox(modifier = Modifier)
             }
            // SnackBarExample()
+           // LazyColumnExample()
         }
     }
 }
@@ -139,6 +143,25 @@ fun ImageCard(
             }
 
         }
+    }
+}
+
+@Composable
+fun LazyColumnExample() {
+    LazyColumn(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        val randomList = List(1000) { Random.nextInt(0, 10000) }
+        itemsIndexed(
+            randomList
+        ) { index, item ->
+            Text(
+                text = item.toString()
+            )
+        }
+       items(5000) {
+
+       }
     }
 }
 
