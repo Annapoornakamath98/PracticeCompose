@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -23,17 +24,34 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val fontFamily = FontFamily(
+            Font(R.font.lexend_bold, FontWeight.Bold),
+            Font(R.font.lexend_light, FontWeight.Light),
+            Font(R.font.lexend_black, FontWeight.Black),
+            Font(R.font.lexend_semibold, FontWeight.SemiBold)
+        )
         setContent {
-            ImageCard(
-                painter = painterResource(R.drawable.bird),
-                contentDesc = "Kingfisher",
-                title = "This is a Kingfisher bird."
-            )
+            Column {
+                AnnotatedText(fontFamily)
+                ImageCard(
+                    painter = painterResource(R.drawable.bird),
+                    contentDesc = "Kingfisher",
+                    title = "This is a Kingfisher bird.",
+                    fontFamily = fontFamily
+                )
+            }
         }
     }
 }
@@ -43,7 +61,8 @@ fun ImageCard(
     painter: Painter,
     contentDesc: String,
     title: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    fontFamily: FontFamily
 ) {
     Box(modifier = Modifier.fillMaxSize(0.5f).padding(12.dp)) {
         Card(
@@ -82,12 +101,35 @@ fun ImageCard(
                     Text(
                         text = title,
                         color = Color.White,
-                        style = MaterialTheme.typography.bodyLarge
+                        fontSize = 16.sp,
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontFamily = fontFamily
                     )
                 }
             }
 
         }
     }
+}
+
+@Composable
+fun AnnotatedText(fontFamily: FontFamily) {
+    Text(
+        text = buildAnnotatedString {
+            withStyle(
+                style = SpanStyle(
+                    color = Color.Blue,
+                    fontSize = 50.sp
+                )
+            ) {
+                append("Bird")
+            }
+            append(" app")
+        },
+        color = Color.Black,
+        fontSize = 50.sp,
+        style = MaterialTheme.typography.bodyLarge,
+        fontFamily = fontFamily
+    )
 
 }
