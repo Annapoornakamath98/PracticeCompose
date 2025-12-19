@@ -9,8 +9,10 @@ import androidx.compose.animation.core.InfiniteRepeatableSpec
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -57,6 +59,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layoutId
@@ -67,6 +71,8 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -107,7 +113,12 @@ class MainActivity : ComponentActivity() {
                 )
                 ColorBox(modifier = Modifier)
                 //ConstraintLayoutExample()
-                AnimationExample()
+                //AnimationExample()
+
+                CircularProgressBar(
+                    percent = 0.8f,
+                    number = 100
+                )
             }
             // SnackBarExample()
             // LazyColumnExample()
@@ -359,6 +370,60 @@ fun AnimationExample() {
 }
 
 @Composable
+fun CircularProgressBar(
+    percent: Float,
+    number: Int,
+    fontSize: TextUnit = 20.sp,
+    radius: Dp = 50.dp,
+    color: Color = Color.Cyan,
+    strokeWidth: Dp = 8.dp,
+    animDuration: Int = 1000,
+    animDelay: Int = 0
+) {
+    var animationPlayed by remember { mutableStateOf(false) }
+    val currentPercent = animateFloatAsState(
+        targetValue = if (animationPlayed) percent else 0f,
+        label = "",
+        animationSpec = tween(
+            durationMillis = animDuration,
+            delayMillis = animDelay
+        )
+    )
+    LaunchedEffect(key1 = true) {
+        animationPlayed = true
+    }
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .size(radius * 2f)
+            .padding(16.dp)
+    ) {
+        Canvas(
+            modifier = Modifier.size(radius * 2f)
+        ) {
+            drawArc(
+                color = color,
+                startAngle = -90f,
+                sweepAngle = 360 * currentPercent.value,
+                useCenter = false,
+                style = Stroke(
+                    width = strokeWidth.toPx(),
+                    cap = StrokeCap.Round
+                )
+            )
+        }
+        Text(
+            text = (currentPercent.value * number).toInt().toString(),
+            color = Color.Black,
+            fontSize = fontSize,
+            fontWeight = FontWeight.Bold
+        )
+
+    }
+
+}
+
+@Composable
 fun EffectHandlersExample() {
     // This tells Compose: Watch the variable text.
     // Every time text changes, cancel whatever this block was doing and restart it from the beginning.
@@ -371,6 +436,7 @@ fun EffectHandlersExample() {
 
 @Composable
 fun LaunchedEffectDemo(viewModel: LaunchedEffectExampleVM) {
+    // key = true that means the block will run only once during the first composition of the composable
     LaunchedEffect(
         key1 = true
     ) {
