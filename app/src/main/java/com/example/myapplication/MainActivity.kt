@@ -1,6 +1,7 @@
 package com.example.myapplication
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -31,11 +32,21 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -55,9 +66,19 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.ConstraintSet
 import androidx.constraintlayout.compose.Dimension
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.example.myapplication.viewmodel.LaunchedEffectExampleVM
+import com.example.myapplication.viewmodel.ScreenEvents
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -84,8 +105,8 @@ class MainActivity : ComponentActivity() {
                 ColorBox(modifier = Modifier)
                 ConstraintLayoutExample()
             }
-           // SnackBarExample()
-           // LazyColumnExample()
+            // SnackBarExample()
+            // LazyColumnExample()
         }
     }
 }
@@ -164,9 +185,9 @@ fun LazyColumnExample() {
                 text = item.toString()
             )
         }
-       items(5000) {
+        items(5000) {
 
-       }
+        }
     }
 }
 
@@ -229,7 +250,7 @@ fun SnackBarExample() {
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
-            ) {
+        ) {
             TextField(
                 value = textEntered,
                 label = {
@@ -282,7 +303,319 @@ fun ConstraintLayoutExample() {
     }
 
     ConstraintLayout(constraintSet = constraints, modifier = Modifier.fillMaxSize()) {
-        Box(modifier = Modifier.background(Color.Green).layoutId("greenBox"))
-        Box(modifier = Modifier.background(Color.Red).layoutId("redBox"))
+        Box(
+            modifier = Modifier
+                .background(Color.Green)
+                .layoutId("greenBox")
+        )
+        Box(
+            modifier = Modifier
+                .background(Color.Red)
+                .layoutId("redBox")
+        )
+    }
+}
+
+@Composable
+fun EffectHandlersExample() {
+    // This tells Compose: Watch the variable text.
+    // Every time text changes, cancel whatever this block was doing and restart it from the beginning.
+    // delay(1000L) This pauses the code for 1,000 milliseconds (1 second)
+    val text by remember { mutableStateOf("") }
+    LaunchedEffect(key1 = text) {
+        delay(1000L)
+    }
+}
+
+@Composable
+fun LaunchedEffectDemo(viewModel: LaunchedEffectExampleVM) {
+    LaunchedEffect(
+        key1 = true
+    ) {
+        viewModel.sharedFlow.collect { event ->
+            when (event) {
+                is ScreenEvents.ShowSnackBar -> {
+
+                }
+
+                is ScreenEvents.Navigate -> {
+
+                }
+            }
+
+        }
+    }
+
+}
+
+@Composable
+fun RememberUpdatedStateExample(onTimeout: () -> Unit) {
+    // This code ensures that a long-running timer calls the latest version of a function,
+    // without restarting the timer every time that function changes.
+    val updatedOnTimeout by rememberUpdatedState(newValue = onTimeout)
+    LaunchedEffect(key1 = true) {
+        delay(3000L)
+        updatedOnTimeout()
+    }
+}
+
+
+/*
+* This code handles cleanup. It ensures that when your Composable screen is destroyed
+* (user navigates away), you stop listening to lifecycle events to prevent memory leaks.
+
+The Use Case: A Video Player
+Imagine you have a screen that plays a video.
+
+Behavior: When the user minimizes the app (puts it in the background), the video must pause.
+
+Problem: If you don't clean up your listener, the app might try to pause a video player that no
+longer exists after the user closes the screen, causing a crash or memory leak.
+
+How this code handles it:
+Start Listening (DisposableEffect): When the Composable enters the screen, it attaches an observer
+to the Lifecycle. It says, "Tell me whenever the app pauses or resumes."
+
+React to Events (observer): Inside the observer, it checks if (event == Lifecycle.Event.ON_PAUSE).
+In a real app, this is where you would call videoPlayer.pause().
+
+Stop Listening (onDispose): This is the critical part. When the user hits the "Back" button and the
+Composable is removed from the screen, onDispose triggers. It removes the observer.
+This ensures the component is clean and doesn't leave any "zombie" listeners behind.
+* */
+@Composable
+fun DisposableEffectExample() {
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(key1 = lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_PAUSE) {
+                println("Paused")
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+}
+
+
+/*
+* Called when composable is successfully recomposed
+*
+* This code allows you to run a block of code after every successful recomposition, ensuring that
+* the "outside world" (non-Compose code) stays in sync with your Compose UI.
+
+What it does
+Waits for Success: It only runs if the UI was successfully built and displayed.
+If the composition fails or is cancelled mid-way, this block is skipped.
+
+Runs Every Time: Unlike LaunchedEffect (which runs only once or when keys change),
+SideEffect runs every single time the parent Composable recomposes.
+
+The Real-World Use Case: Updating System Status Bars
+The most common use case for SideEffect is updating properties that belong to the standard Android
+system (not Compose), such as the Status Bar Color.
+
+Imagine you have a Theme switch (Light Mode / Dark Mode).
+
+Compose: handles changing the background color of your app easily.
+
+System: The little bar at the top with the battery icon is not part of Compose.
+It is an "external" Android window property.
+
+You use SideEffect to tell the Android System to change the status bar color whenever your
+Compose Theme changes.
+
+The Code Example
+Kotlin
+
+@Composable
+fun ThemeAwareScreen(isDarkTheme: Boolean) {
+    // 1. Determine the color based on Compose state
+    val statusBarColor = if (isDarkTheme) Color.Black else Color.White
+
+    // 2. Get the standard Android System UI controller
+    val systemUiController = rememberSystemUiController()
+
+    // 3. Sync Compose state with the Android System
+    SideEffect {
+        // This runs AFTER every frame is drawn.
+        // It ensures that if the user toggles the theme, the status bar
+        // INSTANTLY updates to match the new color.
+        systemUiController.setSystemBarsColor(statusBarColor)
+    }
+
+    // ... Rest of your UI ...
+}
+Why not use LaunchedEffect?
+LaunchedEffect is asynchronous: It launches a coroutine. There might be a tiny delay (1 frame)
+where your app turns Dark Mode but the status bar is still Light Mode.
+
+SideEffect is synchronous: It runs immediately after the frame is committed,
+ensuring no visual glitch or "flicker" between the app UI and the system UI.
+* */
+@Composable
+fun SideEffectExample(nonComposeCounter: Int) {
+    SideEffect {
+        println("Called when composable is successfully recomposed")
+    }
+}
+
+/*
+* Think of produceState as a wrapper that combines remember { mutableStateOf(...) } and LaunchedEffect into one clean package.
+
+Launch: It creates a coroutine automatically when the Composable enters the screen.
+
+The value property: Inside the block, you have access to a special variable called value.
+Whenever you assign something to value (value++), it updates the State.
+
+Cleanup: If this Composable leaves the screen, the coroutine (the while loop) is automatically cancelled.
+
+Use produceState when you need to convert non-Compose state into Compose State.
+
+Example: Listening to a specific Firebase callback or a WebSocket and updating the UI every time a message arrives.
+
+Note: If you are just collecting a standard Kotlin Flow, use the simpler flow.collectAsStateWithLifecycle() instead.
+* */
+@Composable
+fun ProduceStateExample(countUpTo: Int): State<Int> {
+    return produceState(initialValue = 0) {
+        while (value < countUpTo) {
+            delay(1000L)
+            value += 1
+        }
+    }
+}
+
+
+/*
+* You should use derivedStateOf when you have High Frequency Inputs (changing constantly) but Low Frequency Outputs (changing rarely).
+* It acts as a Buffer or a Filter. It stops the UI from recomposing too often.
+*
+* The Perfect Use Case: "Scroll to Top" Button
+* Imagine a list with 1000 items. You want to show a "Jump to Top" button only when the user has scrolled past the first item.
+* Without derivedStateOf (Bad):
+Kotlin
+val listState = rememberLazyListState()
+// BAD: This line runs every single pixel the user scrolls!
+// If the user scrolls 100 pixels, your whole screen recomposes 100 times.
+val showButton = listState.firstVisibleItemIndex > 0
+*
+*
+With derivedStateOf (Good):
+Kotlin
+val listState = rememberLazyListState()
+// GOOD: The logic runs every pixel, BUT...
+// 'showButton' only updates when the RESULT changes from false to true.
+val showButton by remember {
+    derivedStateOf {
+        listState.firstVisibleItemIndex > 0
+    }
+}
+*
+* */
+@Composable
+fun DerivedStateExample() {
+    // Compose re-executed the function, causing the string counterText to be re-calculated with the new number.
+//    var counter by remember { mutableStateOf(0) }
+//    val counterText = "The counter is $counter"
+//    Button(
+//        onClick = {
+//            counter++
+//        }
+//    ) {
+//        Text(text = counterText)
+//    }
+
+    // Better way for the above code
+    var counter by remember { mutableStateOf(0) }
+    val counterText by remember { derivedStateOf { "The counter is $counter" } }
+    Button(
+        onClick = {
+            counter++
+        }
+    ) {
+        Text(text = counterText)
+    }
+}
+
+
+/*
+*
+* snapshotFlow is a bridge that converts Compose State objects (like mutableStateOf or derivedStateOf)
+* into a standard Kotlin Flow.
+
+This is incredibly useful when you want to use Flow operators (like .filter, .debounce, or .distinctUntilChanged)
+* on your Compose state variables.
+*
+*
+*
+* Use Case: Analytics on Scroll
+* Imagine you want to log an analytics event ("User passed item #10") or load more data, but
+* you don't want to spam the server every single pixel the user scrolls.
+* You use snapshotFlow to observe the listState and only act when the index changes.
+*
+* @Composable
+fun SnapshotFlowExample() {
+    val listState = rememberLazyListState()
+
+    // We want to detect when the user scrolls past index 10
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.firstVisibleItemIndex }
+            .map { index -> index > 10 }
+            .distinctUntilChanged() // Only emit when the boolean FLIPS (false -> true)
+            .filter { it == true }  // Only care when it becomes TRUE
+            .collect {
+                println("Analytics: User has scrolled past item 10!")
+                // valid use case: viewModel.loadNextPage()
+            }
+    }
+
+    LazyColumn(state = listState) {
+        items(100) { index ->
+            Text(
+                text = "Item #$index",
+                modifier = Modifier.padding(16.dp)
+            )
+        }
+    }
+}
+*
+* snapshotFlow { ... }: This block runs whenever the state read inside it (listState.firstVisibleItemIndex) changes.
+* It converts that changing integer into a Flow stream.
+
+distinctUntilChanged(): This is the power move. Even if the user scrolls 50 pixels,
+* if the index is still 5, this operator prevents downstream events. It filters out noise.
+
+collect: This runs in the coroutine scope (from LaunchedEffect). It's where you perform your side
+* effect (API call, Analytics, Toast, etc.).
+*
+* When to use it?
+Form Validation: Validate a field only after the user stops typing for 500ms (.debounce(500)).
+
+Scroll & Pagination: Trigger "Load More" when the user reaches the end of a list.
+
+System Changes: Reacting to permission changes or window size classes efficiently.
+* */
+@Composable
+fun EasySnapshotFlowExample() {
+    // 1. Standard Compose State
+    var count by remember { mutableIntStateOf(0) }
+
+    // 2. The Bridge (snapshotFlow)
+    LaunchedEffect(Unit) {
+        // "Watch 'count'. Every time it changes, emit the new number."
+        snapshotFlow { count }
+            .filter { it == 10 } // Only let the number 10 pass through
+            .collect {
+                // This code runs ONLY when count becomes 10
+                Log.d("TAG", "Bingo! You hit the target.")
+            }
+    }
+
+    // 3. Simple UI to change the number
+    Button(onClick = { count++ }) {
+        Text("Count is $count")
     }
 }
