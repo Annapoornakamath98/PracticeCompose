@@ -4,6 +4,13 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.animateColor
+import androidx.compose.animation.core.InfiniteRepeatableSpec
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,8 +22,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -38,7 +45,6 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -68,17 +74,14 @@ import androidx.constraintlayout.compose.ConstraintSet
 import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.myapplication.viewmodel.LaunchedEffectExampleVM
 import com.example.myapplication.viewmodel.ScreenEvents
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
-@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -103,7 +106,8 @@ class MainActivity : ComponentActivity() {
                     fontFamily = fontFamily
                 )
                 ColorBox(modifier = Modifier)
-                ConstraintLayoutExample()
+                //ConstraintLayoutExample()
+                AnimationExample()
             }
             // SnackBarExample()
             // LazyColumnExample()
@@ -313,6 +317,44 @@ fun ConstraintLayoutExample() {
                 .background(Color.Red)
                 .layoutId("redBox")
         )
+    }
+}
+
+@Composable
+fun AnimationExample() {
+    var sizeState by remember { mutableStateOf(200.dp) }
+    val size by animateDpAsState(
+        targetValue = sizeState,
+        label = "",
+        animationSpec = tween(
+            durationMillis = 1000,
+            delayMillis = 100,
+            easing = LinearOutSlowInEasing
+        )
+    )
+    val infiniteTransition = rememberInfiniteTransition(label = "")
+    val color by infiniteTransition.animateColor(
+        initialValue = Color.Cyan,
+        targetValue = Color.Yellow,
+        animationSpec = InfiniteRepeatableSpec(
+            tween(durationMillis = 2000),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = ""
+    )
+    Box(
+        modifier = Modifier
+            .size(size)
+            .background(color),
+        contentAlignment = Alignment.Center
+    ) {
+        Button(
+            onClick = {
+                sizeState += 20.dp
+            }
+        ) {
+            Text("Increase size")
+        }
     }
 }
 
