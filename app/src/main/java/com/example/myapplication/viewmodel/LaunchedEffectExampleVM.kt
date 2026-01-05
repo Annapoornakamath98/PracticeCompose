@@ -17,7 +17,7 @@ class LaunchedEffectExampleVM
 
         init {
             viewModelScope.launch {
-                _sharedFlow.emit(ScreenEvents.ShowSnackBar("Hello!"))
+                _sharedFlow.emit(ScreenEvents.ShowSnackBar("Hello world!"))
             }
         }
     }

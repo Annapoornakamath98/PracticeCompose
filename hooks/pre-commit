@@ -11,4 +11,4 @@ if [ $RESULT -ne 0 ]; then
   exit 1
 fi
 
-echo "✅ ktlint passed"
+echo "ktlint passed!"
