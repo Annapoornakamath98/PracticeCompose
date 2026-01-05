@@ -45,6 +45,15 @@ android {
         }
     }
 
+    tasks.register<Copy>("installGitHook") {
+        from(file("$rootDir/hooks/pre-commit"))
+        into(file("$rootDir/.git/hooks"))
+        fileMode = 0x777 // Ensures the script is executable
+    }
+
+    // Ensure the hook is installed every time the project builds
+    tasks.getByPath(":app:preBuild").dependsOn("installGitHook")
+
     buildTypes {
         release {
             isMinifyEnabled = false

@@ -1,0 +1,14 @@
+#!/bin/sh
+
+echo "Running ktlint check..."
+
+./gradlew :app:ktlintCheck
+
+RESULT=$?
+
+if [ $RESULT -ne 0 ]; then
+  echo "❌ ktlint failed. Fix issues before committing."
+  exit 1
+fi
+
+echo "✅ ktlint passed"
