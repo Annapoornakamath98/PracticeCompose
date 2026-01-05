@@ -7,7 +7,7 @@ echo "Running ktlint check..."
 RESULT=$?
 
 if [ $RESULT -ne 0 ]; then
-  echo "❌ ktlint failed. Fix issues before committing."
+  echo "Ktlint found errors! Run './gradlew ktlintFormat' to fix them."
   exit 1
 fi
 
