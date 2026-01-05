@@ -9,17 +9,21 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class LaunchedEffectExampleVM @Inject constructor() : ViewModel() {
-    private val _sharedFlow = MutableSharedFlow<ScreenEvents>()
-    val sharedFlow = _sharedFlow.asSharedFlow()
+class LaunchedEffectExampleVM
+    @Inject
+    constructor() : ViewModel() {
+        private val _sharedFlow = MutableSharedFlow<ScreenEvents>()
+        val sharedFlow = _sharedFlow.asSharedFlow()
 
-    init {
-        viewModelScope.launch {
-            _sharedFlow.emit(ScreenEvents.ShowSnackBar("Hello!"))
+        init {
+            viewModelScope.launch {
+                _sharedFlow.emit(ScreenEvents.ShowSnackBar("Hello!"))
+            }
         }
     }
-}
+
 sealed class ScreenEvents {
     data class ShowSnackBar(val message: String) : ScreenEvents()
+
     data class Navigate(val route: String) : ScreenEvents()
 }

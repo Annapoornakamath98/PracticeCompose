@@ -32,9 +32,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -107,46 +105,49 @@ import kotlin.random.Random
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val fontFamily = FontFamily(
-            Font(R.font.lexend_bold, FontWeight.Bold),
-            Font(R.font.lexend_light, FontWeight.Light),
-            Font(R.font.lexend_black, FontWeight.Black),
-            Font(R.font.lexend_semibold, FontWeight.SemiBold)
-        )
+        val fontFamily =
+            FontFamily(
+                Font(R.font.lexend_bold, FontWeight.Bold),
+                Font(R.font.lexend_light, FontWeight.Light),
+                Font(R.font.lexend_black, FontWeight.Black),
+                Font(R.font.lexend_semibold, FontWeight.SemiBold),
+            )
         setContent {
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color(0xFF101010))
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .background(Color(0xFF101010)),
             ) {
                 Row(
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .border(1.dp, Color.Green, RoundedCornerShape(10.dp))
-                        .padding(30.dp)
+                    modifier =
+                        Modifier
+                            .border(1.dp, Color.Green, RoundedCornerShape(10.dp))
+                            .padding(30.dp),
                 ) {
                     var volume by remember {
                         mutableStateOf(0f)
                     }
                     val barCount = 40
                     MusicKnob(
-                        modifier = Modifier.size(100.dp)
+                        modifier = Modifier.size(100.dp),
                     ) {
                         volume = it
                     }
                     Spacer(modifier = Modifier.width(20.dp))
                     VolumeBar(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(30.dp),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .height(30.dp),
                         activeBars = (barCount * volume).roundToInt(),
-                        barCount = barCount
+                        barCount = barCount,
                     )
                 }
             }
-
 
 //            Column(
 //                modifier = Modifier.verticalScroll(
@@ -182,57 +183,62 @@ fun ImageCard(
     contentDesc: String,
     title: String,
     modifier: Modifier = Modifier,
-    fontFamily: FontFamily
+    fontFamily: FontFamily,
 ) {
     Box(
-        modifier = Modifier
-            .fillMaxSize(0.5f)
-            .padding(12.dp)
+        modifier =
+            Modifier
+                .fillMaxSize(0.5f)
+                .padding(12.dp),
     ) {
         Card(
             modifier = modifier.fillMaxWidth(),
             shape = RoundedCornerShape(8.dp),
-            elevation = CardDefaults.cardElevation(
-                defaultElevation = 8.dp
-            )
+            elevation =
+                CardDefaults.cardElevation(
+                    defaultElevation = 8.dp,
+                ),
         ) {
             Box(modifier = Modifier.height(200.dp)) {
                 Image(
                     painter = painter,
                     contentDescription = contentDesc,
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.Crop,
                 )
 
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(
-                            brush = Brush.verticalGradient(
-                                colors = listOf(
-                                    Color.Transparent,
-                                    Color.Black
-                                ),
-                                startY = 300f
-                            )
-                        )
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .background(
+                                brush =
+                                    Brush.verticalGradient(
+                                        colors =
+                                            listOf(
+                                                Color.Transparent,
+                                                Color.Black,
+                                            ),
+                                        startY = 300f,
+                                    ),
+                            ),
                 )
 
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(12.dp),
-                    contentAlignment = Alignment.BottomStart
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(12.dp),
+                    contentAlignment = Alignment.BottomStart,
                 ) {
                     Text(
                         text = title,
                         color = Color.White,
                         fontSize = 16.sp,
                         style = MaterialTheme.typography.bodyLarge,
-                        fontFamily = fontFamily
+                        fontFamily = fontFamily,
                     )
                 }
             }
-
         }
     }
 }
@@ -240,18 +246,17 @@ fun ImageCard(
 @Composable
 fun LazyColumnExample() {
     LazyColumn(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
     ) {
         val randomList = List(1000) { Random.nextInt(0, 10000) }
         itemsIndexed(
-            randomList
+            randomList,
         ) { index, item ->
             Text(
-                text = item.toString()
+                text = item.toString(),
             )
         }
         items(5000) {
-
         }
     }
 }
@@ -259,21 +264,23 @@ fun LazyColumnExample() {
 @Composable
 fun AnnotatedText(fontFamily: FontFamily) {
     Text(
-        text = buildAnnotatedString {
-            withStyle(
-                style = SpanStyle(
-                    color = Color.Blue,
-                    fontSize = 50.sp
-                )
-            ) {
-                append("Bird")
-            }
-            append(" app")
-        },
+        text =
+            buildAnnotatedString {
+                withStyle(
+                    style =
+                        SpanStyle(
+                            color = Color.Blue,
+                            fontSize = 50.sp,
+                        ),
+                ) {
+                    append("Bird")
+                }
+                append(" app")
+            },
         color = Color.Black,
         fontSize = 50.sp,
         style = MaterialTheme.typography.bodyLarge,
-        fontFamily = fontFamily
+        fontFamily = fontFamily,
     )
 }
 
@@ -281,17 +288,21 @@ fun AnnotatedText(fontFamily: FontFamily) {
 fun ColorBox(modifier: Modifier = Modifier) {
     var color by remember { mutableStateOf(Color.Yellow) }
 
-    Box(modifier = modifier
-        .padding(40.dp)
-        .background(color = color)
-        .clickable {
-            color = Color(
-                Random.nextFloat(),
-                Random.nextFloat(),
-                Random.nextFloat(),
-                1f
-            )
-        }) {
+    Box(
+        modifier =
+            modifier
+                .padding(40.dp)
+                .background(color = color)
+                .clickable {
+                    color =
+                        Color(
+                            Random.nextFloat(),
+                            Random.nextFloat(),
+                            Random.nextFloat(),
+                            1f,
+                        )
+                },
+    ) {
         Text(text = "Click to change color", modifier = modifier.padding(16.dp))
     }
 }
@@ -306,15 +317,16 @@ fun SnackBarExample() {
         modifier = Modifier.fillMaxWidth(),
         snackbarHost = {
             SnackbarHost(hostState = snackBarHostState)
-        }
+        },
     ) { innerPadding ->
         Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize()
-                .padding(16.dp),
+            modifier =
+                Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize()
+                    .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Center,
         ) {
             TextField(
                 value = textEntered,
@@ -325,7 +337,7 @@ fun SnackBarExample() {
                     textEntered = it
                 },
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             )
             Spacer(modifier = Modifier.height(16.dp))
             Button(
@@ -333,10 +345,10 @@ fun SnackBarExample() {
                     scope.launch {
                         snackBarHostState.showSnackbar(
                             message = "Hello $textEntered",
-                            duration = SnackbarDuration.Long
+                            duration = SnackbarDuration.Long,
                         )
                     }
-                }
+                },
             ) {
                 Text("Click!")
             }
@@ -346,37 +358,40 @@ fun SnackBarExample() {
 
 @Composable
 fun ConstraintLayoutExample() {
-    val constraints = ConstraintSet {
-        val greenBox = createRefFor("greenBox")
-        val redBox = createRefFor("redBox")
-        val guideline = createGuidelineFromTop(0.5f)
-        constrain(greenBox) {
-            top.linkTo(guideline)
-            // linking start of green box to parent start
-            start.linkTo(parent.start)
-            width = Dimension.value(100.dp)
-            height = Dimension.value(100.dp)
-        }
+    val constraints =
+        ConstraintSet {
+            val greenBox = createRefFor("greenBox")
+            val redBox = createRefFor("redBox")
+            val guideline = createGuidelineFromTop(0.5f)
+            constrain(greenBox) {
+                top.linkTo(guideline)
+                // linking start of green box to parent start
+                start.linkTo(parent.start)
+                width = Dimension.value(100.dp)
+                height = Dimension.value(100.dp)
+            }
 
-        constrain(redBox) {
-            top.linkTo(greenBox.top)
-            start.linkTo(greenBox.end)
-            end.linkTo(parent.end)
-            width = Dimension.fillToConstraints
-            height = Dimension.value(100.dp)
+            constrain(redBox) {
+                top.linkTo(greenBox.top)
+                start.linkTo(greenBox.end)
+                end.linkTo(parent.end)
+                width = Dimension.fillToConstraints
+                height = Dimension.value(100.dp)
+            }
         }
-    }
 
     ConstraintLayout(constraintSet = constraints, modifier = Modifier.fillMaxSize()) {
         Box(
-            modifier = Modifier
-                .background(Color.Green)
-                .layoutId("greenBox")
+            modifier =
+                Modifier
+                    .background(Color.Green)
+                    .layoutId("greenBox"),
         )
         Box(
-            modifier = Modifier
-                .background(Color.Red)
-                .layoutId("redBox")
+            modifier =
+                Modifier
+                    .background(Color.Red)
+                    .layoutId("redBox"),
         )
     }
 }
@@ -387,32 +402,35 @@ fun AnimationExample() {
     val size by animateDpAsState(
         targetValue = sizeState,
         label = "",
-        animationSpec = tween(
-            durationMillis = 1000,
-            delayMillis = 100,
-            easing = LinearOutSlowInEasing
-        )
+        animationSpec =
+            tween(
+                durationMillis = 1000,
+                delayMillis = 100,
+                easing = LinearOutSlowInEasing,
+            ),
     )
     val infiniteTransition = rememberInfiniteTransition(label = "")
     val color by infiniteTransition.animateColor(
         initialValue = Color.Cyan,
         targetValue = Color.Yellow,
-        animationSpec = InfiniteRepeatableSpec(
-            tween(durationMillis = 2000),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = ""
+        animationSpec =
+            InfiniteRepeatableSpec(
+                tween(durationMillis = 2000),
+                repeatMode = RepeatMode.Reverse,
+            ),
+        label = "",
     )
     Box(
-        modifier = Modifier
-            .size(size)
-            .background(color),
-        contentAlignment = Alignment.Center
+        modifier =
+            Modifier
+                .size(size)
+                .background(color),
+        contentAlignment = Alignment.Center,
     ) {
         Button(
             onClick = {
                 sizeState += 20.dp
-            }
+            },
         ) {
             Text("Increase size")
         }
@@ -428,49 +446,51 @@ fun CircularProgressBar(
     color: Color = Color.Cyan,
     strokeWidth: Dp = 8.dp,
     animDuration: Int = 1000,
-    animDelay: Int = 0
+    animDelay: Int = 0,
 ) {
     var animationPlayed by remember { mutableStateOf(false) }
-    val currentPercent = animateFloatAsState(
-        targetValue = if (animationPlayed) percent else 0f,
-        label = "",
-        animationSpec = tween(
-            durationMillis = animDuration,
-            delayMillis = animDelay
+    val currentPercent =
+        animateFloatAsState(
+            targetValue = if (animationPlayed) percent else 0f,
+            label = "",
+            animationSpec =
+                tween(
+                    durationMillis = animDuration,
+                    delayMillis = animDelay,
+                ),
         )
-    )
     LaunchedEffect(key1 = true) {
         animationPlayed = true
     }
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier
-            .size(radius * 2f)
-            .padding(16.dp)
+        modifier =
+            Modifier
+                .size(radius * 2f)
+                .padding(16.dp),
     ) {
         Canvas(
-            modifier = Modifier.size(radius * 2f)
+            modifier = Modifier.size(radius * 2f),
         ) {
             drawArc(
                 color = color,
                 startAngle = -90f,
                 sweepAngle = 360 * currentPercent.value,
                 useCenter = false,
-                style = Stroke(
-                    width = strokeWidth.toPx(),
-                    cap = StrokeCap.Round
-                )
+                style =
+                    Stroke(
+                        width = strokeWidth.toPx(),
+                        cap = StrokeCap.Round,
+                    ),
             )
         }
         Text(
             text = (currentPercent.value * number).toInt().toString(),
             color = Color.Black,
             fontSize = fontSize,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
         )
-
     }
-
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -478,7 +498,7 @@ fun CircularProgressBar(
 fun MusicKnob(
     modifier: Modifier = Modifier,
     limitingAngle: Float = 25f,
-    onValueChange: (Float) -> Unit
+    onValueChange: (Float) -> Unit,
 ) {
     var rotation by remember { mutableStateOf(limitingAngle) }
     var touchX by remember { mutableStateOf(0f) }
@@ -489,42 +509,45 @@ fun MusicKnob(
     Image(
         painter = painterResource(R.drawable.music_knob),
         contentDescription = "Music Knob",
-        modifier = modifier
-            .fillMaxSize()
-            .onGloballyPositioned {
-                val windowBounds = it.boundsInWindow()
-                centerX = windowBounds.size.width / 2f
-                centerY = windowBounds.size.height / 2f
-            }
-            .pointerInteropFilter { event ->
-                touchX = event.x
-                touchY = event.y
-                val angle = -atan2(centerX - touchX, centerY - touchY) * (180f / PI).toFloat()
+        modifier =
+            modifier
+                .fillMaxSize()
+                .onGloballyPositioned {
+                    val windowBounds = it.boundsInWindow()
+                    centerX = windowBounds.size.width / 2f
+                    centerY = windowBounds.size.height / 2f
+                }
+                .pointerInteropFilter { event ->
+                    touchX = event.x
+                    touchY = event.y
+                    val angle = -atan2(centerX - touchX, centerY - touchY) * (180f / PI).toFloat()
 
-                when (event.action) {
-                    MotionEvent.ACTION_DOWN,
-                    MotionEvent.ACTION_MOVE -> {
-                        if (angle !in -limitingAngle..limitingAngle) {
-                            val fixedAngle = if (angle in -180f..limitingAngle) {
-                                360f + angle
+                    when (event.action) {
+                        MotionEvent.ACTION_DOWN,
+                        MotionEvent.ACTION_MOVE,
+                        -> {
+                            if (angle !in -limitingAngle..limitingAngle) {
+                                val fixedAngle =
+                                    if (angle in -180f..limitingAngle) {
+                                        360f + angle
+                                    } else {
+                                        angle
+                                    }
+                                rotation = fixedAngle
+                                val percent = (fixedAngle - limitingAngle) / (360f - 2 * limitingAngle)
+                                onValueChange(percent)
+                                true
                             } else {
-                                angle
+                                false
                             }
-                            rotation = fixedAngle
-                            val percent = (fixedAngle - limitingAngle) / (360f - 2 * limitingAngle)
-                            onValueChange(percent)
-                            true
-                        } else {
+                        }
+
+                        else -> {
                             false
                         }
                     }
-
-                    else -> {
-                        false
-                    }
                 }
-            }
-            .rotate(rotation)
+                .rotate(rotation),
     )
 }
 
@@ -532,29 +555,28 @@ fun MusicKnob(
 fun VolumeBar(
     modifier: Modifier = Modifier,
     activeBars: Int = 0,
-    barCount: Int = 10
+    barCount: Int = 10,
 ) {
     BoxWithConstraints(
         modifier = modifier,
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
-        val barWidth = remember {
-            constraints.maxWidth / (2f * barCount)
-        }
+        val barWidth =
+            remember {
+                constraints.maxWidth / (2f * barCount)
+            }
         Canvas(modifier = modifier) {
             for (i in 0 until barCount) {
                 drawRoundRect(
                     color = if (i in 0..activeBars) Color.Green else Color.DarkGray,
                     topLeft = Offset(i * barWidth * 2f + barWidth / 2f, 0f),
                     size = Size(barWidth, constraints.maxHeight.toFloat()),
-                    cornerRadius = CornerRadius(0f)
+                    cornerRadius = CornerRadius(0f),
                 )
             }
         }
     }
-
 }
-
 
 @Composable
 fun EffectHandlersExample() {
@@ -571,22 +593,18 @@ fun EffectHandlersExample() {
 fun LaunchedEffectDemo(viewModel: LaunchedEffectExampleVM) {
     // key = true that means the block will run only once during the first composition of the composable
     LaunchedEffect(
-        key1 = true
+        key1 = true,
     ) {
         viewModel.sharedFlow.collect { event ->
             when (event) {
                 is ScreenEvents.ShowSnackBar -> {
-
                 }
 
                 is ScreenEvents.Navigate -> {
-
                 }
             }
-
         }
     }
-
 }
 
 @Composable
@@ -599,7 +617,6 @@ fun RememberUpdatedStateExample(onTimeout: () -> Unit) {
         updatedOnTimeout()
     }
 }
-
 
 /*
 * This code handles cleanup. It ensures that when your Composable screen is destroyed
@@ -628,18 +645,18 @@ This ensures the component is clean and doesn't leave any "zombie" listeners beh
 fun DisposableEffectExample() {
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(key1 = lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_PAUSE) {
-                println("Paused")
+        val observer =
+            LifecycleEventObserver { _, event ->
+                if (event == Lifecycle.Event.ON_PAUSE) {
+                    println("Paused")
+                }
             }
-        }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
 }
-
 
 /*
 * Called when composable is successfully recomposed
@@ -729,7 +746,6 @@ fun ProduceStateExample(countUpTo: Int): State<Int> {
     }
 }
 
-
 /*
 * You should use derivedStateOf when you have High Frequency Inputs (changing constantly) but Low Frequency Outputs (changing rarely).
 * It acts as a Buffer or a Filter. It stops the UI from recomposing too often.
@@ -775,12 +791,11 @@ fun DerivedStateExample() {
     Button(
         onClick = {
             counter++
-        }
+        },
     ) {
         Text(text = counterText)
     }
 }
-
 
 /*
 *
