@@ -23,6 +23,22 @@ android {
         }
     }
 
+    subprojects {
+
+        apply(plugin = "org.jlleitschuh.gradle.ktlint")
+
+        extensions.configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
+            android.set(true)
+            ignoreFailures.set(false)
+            verbose.set(true)
+
+            reporters {
+                reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.PLAIN)
+                reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.CHECKSTYLE)
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
